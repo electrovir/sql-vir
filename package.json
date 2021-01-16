@@ -1,0 +1,34 @@
+{
+    "name": "virsql",
+    "version": "0.0.1",
+    "description": "The heroic high-level TypeScript MySQL interface.",
+    "main": "dist/index.js",
+    "scripts": {
+        "prepublishOnly": "npm run test",
+        "test": "rm -rf dist; tsc && jest",
+        "format": "prettier --ignore-path .gitignore --write './{,/**/}*.+(ts|json|html|css)'"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/electrovir/virsql.git"
+    },
+    "keywords": [
+        "sql",
+        "mysql",
+        "virsql",
+        "database",
+        "query",
+        "table",
+        "vir"
+    ],
+    "author": "electrovir (github.com/electrovir)",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/electrovir/virsql/issues"
+    },
+    "homepage": "https://github.com/electrovir/virsql#readme",
+    "devDependencies": {
+        "prettier": "^2.2.1",
+        "typescript": "^4.1.3"
+    }
+}
