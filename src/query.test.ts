@@ -1,5 +1,5 @@
 import {inferTable} from './table';
-import {insertRow, updateRow} from './query';
+import {deleteRow, insertRow, updateRow} from './query';
 
 const inputObject = {
     sampleRow: {
@@ -22,8 +22,8 @@ const testTable = inferTable({databaseName: 'test_db', tableName: 'test_table'},
 
 // success because the whole row is defined
 insertRow(testTable, {lastName: 'Lars', age: 25, color: 'beige', thingie: 'orange'});
-
 updateRow(testTable, {lastName: 'kenobi'}, {age: 56});
+deleteRow(testTable, {lastName: 'fjkdlsjfd'});
 
 //
 // =================================================================================
@@ -38,3 +38,4 @@ updateRow(testTable, {lastName: 'kenobi'}, {age: 56});
 insertRow(testTable, {lastName: 4});
 updateRow(testTable, {hoopla: 'kenobi'}, {derp: 56});
 updateRow(testTable, {lastName: 'kenobi'}, {derp: 56});
+deleteRow(testTable, {derp: 'fjkdlsjfd'});

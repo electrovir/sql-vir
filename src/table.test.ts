@@ -1,4 +1,4 @@
-import {inferDatabaseRow, inferTable, RowBaseType, Row, TableInfoType} from './table';
+import {inferDatabaseRow, inferTable, RowBaseType, Row, TableType} from './table';
 
 function testStringNarrowing(input: string) {
     return input;
@@ -8,7 +8,7 @@ const notJustStrings: RowBaseType = {
     maybeString: 'derp',
 };
 
-function testTableTypeAcceptance<RowGeneric extends RowBaseType>(input: TableInfoType<RowGeneric>) {
+function testTableTypeAcceptance<RowGeneric extends RowBaseType>(input: TableType<RowGeneric>) {
     return input;
 }
 
@@ -30,6 +30,8 @@ const inputObject = {
 };
 
 const testTable = inferTable({databaseName: 'test_db', tableName: 'test_table'}, inputObject);
+// it is unfortunate but sampleRow may be an empty object
+const emptyTable = inferTable({databaseName: 'test_db', tableName: 'test_table'}, {sampleRow: {}});
 
 // this should know that its type is narrowed to just string
 testStringNarrowing(testTable.sampleRow.lastName);
@@ -49,6 +51,9 @@ const newRow2: Row<typeof testTable> = {
     color: 'blue',
     thingie: 'orange',
 };
+const shouldBeEmptyRow = inferDatabaseRow(emptyTable, {});
+// if the table is defined with an empty  sampleRow then any row is accepted unfortunately
+const shouldBeEmptyRow2 = inferDatabaseRow(emptyTable, {stuff: 'whatever'});
 
 //
 // =================================================================================
@@ -74,14 +79,19 @@ const invalidTable2 = inferTable({databaseName: 'test_db', tableName: 'test_tabl
 // this should be NOT valid
 const invalidTable3 = inferTable({databaseName: 'test_db', tableName: 'test_table'}, {});
 
+// should not be able to modify table data
+testTable.sampleRow.age = 4;
+testTable.sampleRow = inputObject.sampleRow;
+testTable.databaseName = 'failure';
+
 // these should all fail
 testTableTypeAcceptance({sampleRow: {}});
 testTableTypeAcceptance({databaseName: 'fail databsae', tableName: 'fail table'});
 testTableTypeAcceptance(inputObject);
 // this should fail because RowBaseType allows more than just strings
 testStringNarrowing(notJustStrings.maybeString);
-
 // new row without any properties
-const newRowFail = inferDatabaseRow(testTable, {});
+
+const shouldNotBeEmptyRow = inferDatabaseRow(testTable, {});
 const newRowFail2: Row<typeof testTable> = {lastName: 'cushion'};
 const newRowFail3 = inferDatabaseRow(testTable, {lastName: 'hoopla'});
