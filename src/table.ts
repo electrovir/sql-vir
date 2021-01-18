@@ -1,6 +1,10 @@
 import {formatJson, VirSqlError} from './virsql-error';
 
-export type RowBaseType = {[key: string]: string | number | Date};
+export type RowBaseType = {[key: string]: string | number | Date | undefined | null};
+/**
+ * Extract the row type from a table type
+ */
+export type Row<T extends {sampleRow: RowBaseType}> = T['sampleRow'];
 
 export type TableInfoType<RowGeneric extends RowBaseType> = {
     sampleRow: RowGeneric;
@@ -9,9 +13,19 @@ export type TableInfoType<RowGeneric extends RowBaseType> = {
 };
 
 /**
+ * Not necessary for row operations but ensures that "row" matches the expected row format for "table"
+ */
+export function inferDatabaseRow<
+    RowGeneric extends RowBaseType,
+    TableGeneric extends TableInfoType<RowGeneric>
+>(table: TableGeneric, row: Row<typeof table>) {
+    return row;
+}
+
+/**
  * mostly for type inference
  */
-export function createDatabaseTable<
+export function inferTable<
     TableInfoGeneric extends {
         sampleRow: RowBaseType;
     }
