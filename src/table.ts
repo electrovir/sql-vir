@@ -6,14 +6,14 @@ export type RowBaseType = Readonly<{[key: string]: string | number | Date | unde
  */
 export type Row<T extends {sampleRow: RowBaseType}> = Readonly<T['sampleRow']>;
 
-export type JustRowTable<RowGeneric extends RowBaseType> = Readonly<{
+export type TableInputType<RowGeneric extends RowBaseType> = Readonly<{
     sampleRow: Readonly<RowGeneric>;
 }>;
 
-type ExtraTableInfoType = Readonly<{databaseName: string; tableName: string}>;
+type ExtraTableInfoType = Readonly<{database: any; tableName: string}>;
 
 export type TableType<RowGeneric extends RowBaseType> = Readonly<
-    JustRowTable<Readonly<RowGeneric>>
+    TableInputType<Readonly<RowGeneric>>
 > &
     Readonly<ExtraTableInfoType>;
 
@@ -26,7 +26,7 @@ export type TableType<RowGeneric extends RowBaseType> = Readonly<
  */
 export function checkRow<
     RowGeneric extends RowBaseType,
-    TableGeneric extends JustRowTable<RowGeneric>
+    TableGeneric extends TableInputType<RowGeneric>
 >(table: TableGeneric, row: RowBaseType): row is Row<typeof table> {
     // check that row has all of table's expected keys
     if (!Object.keys(table.sampleRow).every((tableKey) => row.hasOwnProperty(tableKey))) {
@@ -53,9 +53,9 @@ export function inferDatabaseRow<
 /**
  * mostly for type inference
  */
-export function inferTable<
+export function createTable<
     RowGeneric extends RowBaseType,
-    TableGeneric extends JustRowTable<Readonly<RowGeneric>>
+    TableGeneric extends TableInputType<Readonly<RowGeneric>>
 >(info: Readonly<ExtraTableInfoType>, inputTable: Readonly<TableGeneric>) {
     /*
         The only thing I haven't worked out is how to prevent the types from allowing 
@@ -72,7 +72,7 @@ export function inferTable<
 
     const finishedTable = {
         ...inputTable,
-        databaseName: info.databaseName,
+        database: info.database,
         tableName: info.tableName,
     };
 

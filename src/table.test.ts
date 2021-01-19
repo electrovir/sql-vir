@@ -1,4 +1,4 @@
-import {inferDatabaseRow, inferTable, RowBaseType, Row, TableType} from './table';
+import {inferDatabaseRow, createTable, RowBaseType, Row, TableType} from './table';
 
 function testStringNarrowing(input: string) {
     return input;
@@ -29,9 +29,9 @@ const inputObject = {
     },
 };
 
-const testTable = inferTable({databaseName: 'test_db', tableName: 'test_table'}, inputObject);
+const testTable = createTable({database: 'test_db', tableName: 'test_table'}, inputObject);
 // it is unfortunate but sampleRow may be an empty object
-const emptyTable = inferTable({databaseName: 'test_db', tableName: 'test_table'}, {sampleRow: {}});
+const emptyTable = createTable({database: 'test_db', tableName: 'test_table'}, {sampleRow: {}});
 
 // this should know that its type is narrowed to just string
 testStringNarrowing(testTable.sampleRow.lastName);
@@ -66,8 +66,8 @@ const shouldBeEmptyRow2 = inferDatabaseRow(emptyTable, {stuff: 'whatever'});
 //
 
 // this should be NOT valid
-const invalidTable = inferTable(
-    {databaseName: 'test_db', tableName: 'test_table'},
+const invalidTable = createTable(
+    {database: 'test_db', tableName: 'test_table'},
     {
         sampleRow: {
             thingie: new RegExp(),
@@ -75,18 +75,18 @@ const invalidTable = inferTable(
     },
 );
 // this should be NOT valid
-const invalidTable2 = inferTable({databaseName: 'test_db', tableName: 'test_table'}, {});
+const invalidTable2 = createTable({database: 'test_db', tableName: 'test_table'}, {});
 // this should be NOT valid
-const invalidTable3 = inferTable({databaseName: 'test_db', tableName: 'test_table'}, {});
+const invalidTable3 = createTable({database: 'test_db', tableName: 'test_table'}, {});
 
 // should not be able to modify table data
 testTable.sampleRow.age = 4;
 testTable.sampleRow = inputObject.sampleRow;
-testTable.databaseName = 'failure';
+testTable.database = 'failure';
 
 // these should all fail
 testTableTypeAcceptance({sampleRow: {}});
-testTableTypeAcceptance({databaseName: 'fail databsae', tableName: 'fail table'});
+testTableTypeAcceptance({database: 'fail databsae', tableName: 'fail table'});
 testTableTypeAcceptance(inputObject);
 // this should fail because RowBaseType allows more than just strings
 testStringNarrowing(notJustStrings.maybeString);
