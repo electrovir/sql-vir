@@ -27,6 +27,21 @@ export function updateRows<
     return true;
 }
 
+export function readRows<
+    RowGeneric extends RowBaseType,
+    TableGeneric extends TableType<RowGeneric>
+>(table: TableGeneric, select: Partial<Row<TableGeneric>>[]) {
+    // implement here
+    return true;
+}
+
+export function readRow<RowGeneric extends RowBaseType, TableGeneric extends TableType<RowGeneric>>(
+    table: TableGeneric,
+    select: Partial<Row<TableGeneric>>,
+) {
+    return readRows(table, [select]);
+}
+
 export function updateRow<
     RowGeneric extends RowBaseType,
     TableGeneric extends TableType<RowGeneric>

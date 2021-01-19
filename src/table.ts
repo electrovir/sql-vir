@@ -57,8 +57,11 @@ export function inferTable<
     RowGeneric extends RowBaseType,
     TableGeneric extends JustRowTable<Readonly<RowGeneric>>
 >(info: Readonly<ExtraTableInfoType>, inputTable: Readonly<TableGeneric>) {
-    // the only thing I haven't worked out is how to prevent sampleRow being empty, so we'll check
-    // that at run time here
+    /*
+        The only thing I haven't worked out is how to prevent the types from allowing 
+        inputTable.sampleRow as an empty object {}, so we'll do a quick check for properties here
+        at run time.
+    */
     if (!Object.keys(inputTable.sampleRow).length) {
         throw new VirSqlError(
             `Table "${info.tableName} did not include a valid sampleRow:\n${formatJson(
