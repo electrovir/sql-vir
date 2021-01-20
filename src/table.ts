@@ -1,21 +1,22 @@
+import {ConnectionInfo} from './connection';
 import {formatJson, VirSqlError} from './virsql-error';
 
-export type RowBaseType = Readonly<{[key: string]: string | number | Date | undefined | null}>;
+export type RowBaseType = Readonly<{
+    [columnName: string]: string | number | Date | undefined | null;
+}>;
 /**
  * Extract the row type from a table type
  */
-export type Row<T extends {sampleRow: RowBaseType}> = Readonly<T['sampleRow']>;
+export type Row<T extends {sampleRow: RowBaseType}> = T['sampleRow'];
 
 export type TableInputType<RowGeneric extends RowBaseType> = Readonly<{
-    sampleRow: Readonly<RowGeneric>;
+    sampleRow: RowGeneric;
 }>;
 
-type ExtraTableInfoType = Readonly<{database: any; tableName: string}>;
+export type ExtraTableInfoType = Readonly<{databaseConnection: ConnectionInfo; tableName: string}>;
 
-export type TableType<RowGeneric extends RowBaseType> = Readonly<
-    TableInputType<Readonly<RowGeneric>>
-> &
-    Readonly<ExtraTableInfoType>;
+export type TableType<RowGeneric extends RowBaseType> = TableInputType<RowGeneric> &
+    ExtraTableInfoType;
 
 /**
  * used to type check ONLY, in case that the db type checking is desired without using the full db
@@ -27,7 +28,7 @@ export type TableType<RowGeneric extends RowBaseType> = Readonly<
 export function checkRow<
     RowGeneric extends RowBaseType,
     TableGeneric extends TableInputType<RowGeneric>
->(table: TableGeneric, row: RowBaseType): row is Row<typeof table> {
+>(table: Readonly<TableGeneric>, row: Readonly<RowBaseType>): row is Row<typeof table> {
     // check that row has all of table's expected keys
     if (!Object.keys(table.sampleRow).every((tableKey) => row.hasOwnProperty(tableKey))) {
         return false;
@@ -55,8 +56,8 @@ export function inferDatabaseRow<
  */
 export function createTable<
     RowGeneric extends RowBaseType,
-    TableGeneric extends TableInputType<Readonly<RowGeneric>>
->(info: Readonly<ExtraTableInfoType>, inputTable: Readonly<TableGeneric>) {
+    TableGeneric extends TableInputType<RowGeneric>
+>(info: ExtraTableInfoType, inputTable: Readonly<TableGeneric>) {
     /*
         The only thing I haven't worked out is how to prevent the types from allowing 
         inputTable.sampleRow as an empty object {}, so we'll do a quick check for properties here
@@ -72,9 +73,9 @@ export function createTable<
 
     const finishedTable = {
         ...inputTable,
-        database: info.database,
+        databaseConnection: info.databaseConnection,
         tableName: info.tableName,
     };
 
-    return finishedTable as Readonly<typeof inputTable & typeof info>;
+    return finishedTable as typeof inputTable & typeof info;
 }

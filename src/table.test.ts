@@ -1,3 +1,5 @@
+import {ConnectionInfo} from './connection';
+import {insertRow, insertRows, deleteRow, deleteRows, updateRow, updateRows} from './query';
 import {inferDatabaseRow, createTable, RowBaseType, Row, TableType} from './table';
 
 function testStringNarrowing(input: string) {
@@ -29,9 +31,17 @@ const inputObject = {
     },
 };
 
-const testTable = createTable({database: 'test_db', tableName: 'test_table'}, inputObject);
+const emptyConnectionInfo: ConnectionInfo = {} as ConnectionInfo;
+
+const testTable = createTable(
+    {databaseConnection: emptyConnectionInfo, tableName: 'test_table'},
+    inputObject,
+);
 // it is unfortunate but sampleRow may be an empty object
-const emptyTable = createTable({database: 'test_db', tableName: 'test_table'}, {sampleRow: {}});
+const emptyTable = createTable(
+    {databaseConnection: emptyConnectionInfo, tableName: 'test_table'},
+    {sampleRow: {}},
+);
 
 // this should know that its type is narrowed to just string
 testStringNarrowing(testTable.sampleRow.lastName);
@@ -55,6 +65,14 @@ const shouldBeEmptyRow = inferDatabaseRow(emptyTable, {});
 // if the table is defined with an empty  sampleRow then any row is accepted unfortunately
 const shouldBeEmptyRow2 = inferDatabaseRow(emptyTable, {stuff: 'whatever'});
 
+insertRow(testTable, {lastName: 'hello there', age: 5, color: 'green', thingie: 'brown'});
+
+deleteRow(testTable, {lastName: 'old value'});
+
+deleteRows(testTable, [{lastName: 'old value'}]);
+updateRow(testTable, {lastName: 'old value'}, {lastName: 'new value'});
+updateRows(testTable, [{lastName: 'old value'}], [{lastName: 'new value'}]);
+
 //
 // =================================================================================
 //
@@ -65,9 +83,11 @@ const shouldBeEmptyRow2 = inferDatabaseRow(emptyTable, {stuff: 'whatever'});
 //                       everything below here SHOULD fail
 //
 
+insertRows(testTable, [{lastName: 'we done here'}]);
+insertRow(testTable, {lastName: 'old value'});
 // this should be NOT valid
 const invalidTable = createTable(
-    {database: 'test_db', tableName: 'test_table'},
+    {databaseConnection: emptyConnectionInfo, tableName: 'test_table'},
     {
         sampleRow: {
             thingie: new RegExp(),
@@ -75,9 +95,15 @@ const invalidTable = createTable(
     },
 );
 // this should be NOT valid
-const invalidTable2 = createTable({database: 'test_db', tableName: 'test_table'}, {});
+const invalidTable2 = createTable(
+    {databaseConnection: emptyConnectionInfo, tableName: 'test_table'},
+    {},
+);
 // this should be NOT valid
-const invalidTable3 = createTable({database: 'test_db', tableName: 'test_table'}, {});
+const invalidTable3 = createTable(
+    {databaseConnection: emptyConnectionInfo, tableName: 'test_table'},
+    {},
+);
 
 // should not be able to modify table data
 testTable.sampleRow.age = 4;

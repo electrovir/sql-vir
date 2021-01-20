@@ -1,25 +1,16 @@
+import {ConnectionInfo} from './connection';
 import {getObjectTypedKeys} from './object';
-import {RowBaseType, TableInputType, TableType} from './table';
-
-export type ConnectionInfo = {
-    host: string;
-    user: string;
-    /**
-     * The plain text password for the given user on the current database
-     */
-    password: string;
-    /**
-     * Used for connecting to the database. Must match the database name in the system.
-     */
-    databaseName: string;
-};
+import {createTable, ExtraTableInfoType, RowBaseType, TableInputType, TableType} from './table';
 
 export type DatabaseType<
     RowGeneric extends RowBaseType,
     TablesGeneric extends {[tableName: string]: TableType<RowGeneric>}
 > = {
-    connection: ConnectionInfo;
     tables: TablesGeneric;
+} & SharedDatabaseTypeInfo;
+
+type SharedDatabaseTypeInfo = {
+    connection: ConnectionInfo;
     version?: number;
 };
 
@@ -27,22 +18,26 @@ type DatabaseInputType<
     RowGeneric extends RowBaseType,
     TablesGeneric extends {[tableName: string]: TableInputType<RowGeneric>}
 > = {
-    connection: ConnectionInfo;
     tables: TablesGeneric;
-    version?: number;
-};
+} & SharedDatabaseTypeInfo;
+
+function fillOutTables<
+    RowGeneric extends RowBaseType,
+    TableNames extends string,
+    TablesInputGeneric extends {[tableName in TableNames]: TableInputType<RowGeneric>}
+>(tables: TablesInputGeneric, databaseConnection: ConnectionInfo) {
+    return finalizedTables;
+}
 
 export function createDatabase<
-    RowGeneric extends RowBaseType,
-    TablesGeneric extends {[tableName: string]: TableInputType<RowGeneric>}
->(databaseInput: DatabaseInputType<RowGeneric, TablesGeneric>) {
-    // const finalizedDatabase = {
-    //     connection: databaseInput.connection,
-    //     tables: getObjectTypedKeys(databaseInput.tables).reduce((finalTables, tableName) => {
-    //         finalTables[tableName] =-
-    //         return finalTables;
-    //     }, {} as TablesGeneric),
-    // };
-
+    DatabaseGeneric extends {
+        tables: {[key: string]: {sampleRow: RowBaseType}};
+    } & SharedDatabaseTypeInfo
+>(databaseInput: DatabaseGeneric) {
     return databaseInput;
+    // return {
+    //     ...dbInfo,
+    //     tables: databaseInput.tables as typeof databaseInput['tables'] &
+    //         {[key in TableNames]: ExtraTableInfoType},
+    // };
 }
