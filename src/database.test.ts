@@ -1,4 +1,4 @@
-import {deleteRow, insertRow, updateRow, deleteRows, insertRows, updateRows} from './query';
+import {deleteRow, insertRow, updateRow, deleteRows, insertRows, updateRows} from './crud';
 import {inferDatabase} from './database';
 
 // for testing types later in the file
@@ -16,8 +16,10 @@ function acceptString(input: string) {}
 const database1 = inferDatabase({
     connection: {
         host: 'localhost',
-        user: 'not-a-real-user',
-        password: 'do not store a password in your repo like this',
+        user: {
+            username: 'not-a-real-user',
+            password: 'do not store a password in your repo like this',
+        },
         databaseName: 'not a real database',
     },
     tables: {
@@ -39,8 +41,10 @@ const database1 = inferDatabase({
 inferDatabase({
     connection: {
         host: 'localhost',
-        user: 'not-a-real-user',
-        password: 'do not store a password in your repo like this',
+        user: {
+            username: 'not-a-real-user',
+            password: 'do not store a password in your repo like this',
+        },
         databaseName: 'not a real database',
     },
     tables: {},

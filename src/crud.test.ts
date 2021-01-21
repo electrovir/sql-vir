@@ -1,5 +1,5 @@
 import {inferTable} from './table';
-import {deleteRow, insertRow, updateRow} from './query';
+import {deleteRow, insertRow, updateRow} from './crud';
 import {DatabaseConnectionInfo} from './database-connection';
 
 const inputObject = {
@@ -45,7 +45,7 @@ insertRow(
         sampleRow: {
             stats: 5,
         },
-        databaseConnection: {} as DatabaseConnectionInfo,
+        databaseConnection: dummyConnection,
         tableName: 'test-table',
     },
     {stats: 63},

@@ -1,5 +1,5 @@
 import {DatabaseConnectionInfo} from './database-connection';
-import {insertRow, insertRows, deleteRow, deleteRows, updateRow, updateRows} from './query';
+import {insertRow, insertRows, deleteRow, deleteRows, updateRow, updateRows} from './crud';
 import {inferTableRow, inferTable, RowBaseType, Row, TableType} from './table';
 
 function testStringNarrowing(input: string) {
@@ -32,8 +32,7 @@ const inputObject = {
 };
 
 const emptyConnectionInfo: DatabaseConnectionInfo = {
-    user: '',
-    password: '',
+    user: {username: '', password: ''},
     databaseName: '',
     host: '',
 };
@@ -119,8 +118,8 @@ testTableTypeAcceptance({database: 'fail databsae', tableName: 'fail table'});
 testTableTypeAcceptance(inputObject);
 // this should fail because RowBaseType allows more than just strings
 testStringNarrowing(notJustStrings.maybeString);
-// new row without any properties
 
+// new row without any properties
 const shouldNotBeEmptyRow = inferTableRow(testTable, {});
 const newRowFail2: Row<typeof testTable> = {lastName: 'cushion'};
 const newRowFail3 = inferTableRow(testTable, {lastName: 'hoopla'});
