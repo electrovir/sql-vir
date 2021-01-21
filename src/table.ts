@@ -13,7 +13,7 @@ export type TableInputType<RowGeneric extends RowBaseType> = Readonly<{
     sampleRow: RowGeneric;
 }>;
 
-export type ExtraTableInfoType = Readonly<{databaseConnection: ConnectionInfo; tableName: string}>;
+export type ExtraTableInfoType = {databaseConnection: ConnectionInfo; tableName: string};
 
 export type TableType<RowGeneric extends RowBaseType> = TableInputType<RowGeneric> &
     ExtraTableInfoType;
@@ -54,7 +54,7 @@ export function inferDatabaseRow<
 /**
  * mostly for type inference
  */
-export function createTable<
+export function inferTable<
     RowGeneric extends RowBaseType,
     TableGeneric extends TableInputType<RowGeneric>
 >(info: ExtraTableInfoType, inputTable: Readonly<TableGeneric>) {

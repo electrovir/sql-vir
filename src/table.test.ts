@@ -1,6 +1,6 @@
 import {ConnectionInfo} from './connection';
 import {insertRow, insertRows, deleteRow, deleteRows, updateRow, updateRows} from './query';
-import {inferDatabaseRow, createTable, RowBaseType, Row, TableType} from './table';
+import {inferDatabaseRow, inferTable, RowBaseType, Row, TableType} from './table';
 
 function testStringNarrowing(input: string) {
     return input;
@@ -33,12 +33,12 @@ const inputObject = {
 
 const emptyConnectionInfo: ConnectionInfo = {} as ConnectionInfo;
 
-const testTable = createTable(
+const testTable = inferTable(
     {databaseConnection: emptyConnectionInfo, tableName: 'test_table'},
     inputObject,
 );
 // it is unfortunate but sampleRow may be an empty object
-const emptyTable = createTable(
+const emptyTable = inferTable(
     {databaseConnection: emptyConnectionInfo, tableName: 'test_table'},
     {sampleRow: {}},
 );
@@ -65,7 +65,7 @@ const shouldBeEmptyRow = inferDatabaseRow(emptyTable, {});
 // if the table is defined with an empty  sampleRow then any row is accepted unfortunately
 const shouldBeEmptyRow2 = inferDatabaseRow(emptyTable, {stuff: 'whatever'});
 
-insertRow(testTable, {lastName: 'hello there', age: 5, color: 'green', thingie: 'brown'});
+insertRow(testTable, {lastName: 'old value', thingie: 'what', color: 'blue', age: 44});
 
 deleteRow(testTable, {lastName: 'old value'});
 
@@ -83,10 +83,8 @@ updateRows(testTable, [{lastName: 'old value'}], [{lastName: 'new value'}]);
 //                       everything below here SHOULD fail
 //
 
-insertRows(testTable, [{lastName: 'we done here'}]);
-insertRow(testTable, {lastName: 'old value'});
 // this should be NOT valid
-const invalidTable = createTable(
+const invalidTable = inferTable(
     {databaseConnection: emptyConnectionInfo, tableName: 'test_table'},
     {
         sampleRow: {
@@ -95,15 +93,19 @@ const invalidTable = createTable(
     },
 );
 // this should be NOT valid
-const invalidTable2 = createTable(
+const invalidTable2 = inferTable(
     {databaseConnection: emptyConnectionInfo, tableName: 'test_table'},
     {},
 );
 // this should be NOT valid
-const invalidTable3 = createTable(
+const invalidTable3 = inferTable(
     {databaseConnection: emptyConnectionInfo, tableName: 'test_table'},
     {},
 );
+
+insertRow(testTable, {lastName: 'hello there'});
+insertRows(testTable, [{lastName: 'we done here'}]);
+insertRow(testTable, {lastName: 'old value'});
 
 // should not be able to modify table data
 testTable.sampleRow.age = 4;

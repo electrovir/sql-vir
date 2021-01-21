@@ -1,21 +1,5 @@
-import {createTable, Row} from './table';
 import {deleteRow, insertRow, updateRow, deleteRows, insertRows, updateRows} from './query';
-import {createDatabase} from './database';
-import {ConnectionInfo} from './connection';
-
-const inputObject = {
-    sampleRow: {
-        lastName: 'Kenobi',
-        age: 32,
-        color: 'blue',
-        thingie: 'purple',
-    },
-};
-
-const testTable = createTable(
-    {databaseConnection: {} as ConnectionInfo, tableName: 'test_table'},
-    inputObject,
-);
+import {inferDatabase} from './database';
 
 function acceptNumber(input: number) {}
 function acceptString(input: string) {}
@@ -28,7 +12,7 @@ function acceptString(input: string) {}
 // =================================================================================
 //
 
-const database1 = createDatabase({
+const database1 = inferDatabase({
     connection: {
         host: 'localhost',
         user: 'not-a-real-user',
@@ -51,7 +35,7 @@ const database1 = createDatabase({
 });
 
 // unfortunately an empty object is accepted for "tables" but that would make a useless database anyway
-createDatabase({
+inferDatabase({
     connection: {
         host: 'localhost',
         user: 'not-a-real-user',
@@ -60,8 +44,6 @@ createDatabase({
     },
     tables: {},
 });
-
-type thing = Row<typeof database1.tables.tableA>;
 
 database1.tables.tableA;
 
@@ -88,10 +70,22 @@ updateRows(database1.tables.tableA, [{columnA1: 'old value'}], [{columnA1: 'new 
 //                       everything below here SHOULD fail
 //
 
+// should be readonly
+database1.connection = database1.connection;
+database1.tables = database1.tables;
+database1.version = 5;
+database1.tables.tableA = database1.tables.tableA;
+database1.tables.tableA.sampleRow = database1.tables.tableA.sampleRow;
+database1.tables.tableA.databaseConnection = database1.tables.tableA.databaseConnection;
+
+acceptString(database1.tables.tableA.sampleRow.columnA0);
+acceptString(database1.tables.tableB.sampleRow.columnB1);
+acceptNumber(database1.tables.tableA.sampleRow.columnA1);
 insertRow(database1.tables.tableA, {who: 'we done here'});
 insertRows(database1.tables.tableA, [{who: 'we done here'}]);
 insertRow(database1.tables.tableA, {who: 'old value'});
+insertRow(database1.tables.tableA, {columnA1: 'hello there'});
 deleteRow(database1.tables.tableA, {who: 'old value'});
 updateRow(database1.tables.tableA, {who: 'old value'}, {who: 'new value'});
-createDatabase({});
-createDatabase({connection: {}, tables: {}});
+inferDatabase({});
+inferDatabase({connection: {}, tables: {}});

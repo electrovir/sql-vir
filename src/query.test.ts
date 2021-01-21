@@ -1,4 +1,4 @@
-import {createTable} from './table';
+import {inferTable} from './table';
 import {deleteRow, insertRow, updateRow} from './query';
 import {ConnectionInfo} from './connection';
 
@@ -14,11 +14,11 @@ const inputObject = {
 // bad empty object so we just don't have to worry about this here
 const dummyConnection: ConnectionInfo = {} as ConnectionInfo;
 
-const testTable = createTable(
+const testTable = inferTable(
     {databaseConnection: dummyConnection, tableName: 'test_table'},
     inputObject,
 );
-const testTable2 = createTable(
+const testTable2 = inferTable(
     {databaseConnection: dummyConnection, tableName: 'test_table'},
     {
         sampleRow: {
