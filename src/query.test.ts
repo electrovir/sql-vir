@@ -1,6 +1,6 @@
 import {inferTable} from './table';
 import {deleteRow, insertRow, updateRow} from './query';
-import {ConnectionInfo} from './connection';
+import {DatabaseConnectionInfo} from './database-connection';
 
 const inputObject = {
     sampleRow: {
@@ -12,21 +12,21 @@ const inputObject = {
 };
 
 // bad empty object so we just don't have to worry about this here
-const dummyConnection: ConnectionInfo = {} as ConnectionInfo;
+const dummyConnection: DatabaseConnectionInfo = {} as DatabaseConnectionInfo;
 
-const testTable = inferTable(
-    {databaseConnection: dummyConnection, tableName: 'test_table'},
-    inputObject,
-);
-const testTable2 = inferTable(
-    {databaseConnection: dummyConnection, tableName: 'test_table'},
-    {
-        sampleRow: {
-            columnA1: 'hello there',
-            columnA2: 'you are a bold one',
-        },
+const testTable = inferTable({
+    databaseConnection: dummyConnection,
+    tableName: 'test_table',
+    ...inputObject,
+});
+const testTable2 = inferTable({
+    sampleRow: {
+        columnA1: 'hello there',
+        columnA2: 'you are a bold one',
     },
-);
+    databaseConnection: dummyConnection,
+    tableName: 'test_table',
+});
 
 //
 // =================================================================================
@@ -45,7 +45,7 @@ insertRow(
         sampleRow: {
             stats: 5,
         },
-        databaseConnection: {} as ConnectionInfo,
+        databaseConnection: {} as DatabaseConnectionInfo,
         tableName: 'test-table',
     },
     {stats: 63},

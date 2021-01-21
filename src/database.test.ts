@@ -1,6 +1,7 @@
 import {deleteRow, insertRow, updateRow, deleteRows, insertRows, updateRows} from './query';
 import {inferDatabase} from './database';
 
+// for testing types later in the file
 function acceptNumber(input: number) {}
 function acceptString(input: string) {}
 

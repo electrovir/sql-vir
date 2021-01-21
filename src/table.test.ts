@@ -1,6 +1,6 @@
-import {ConnectionInfo} from './connection';
+import {DatabaseConnectionInfo} from './database-connection';
 import {insertRow, insertRows, deleteRow, deleteRows, updateRow, updateRows} from './query';
-import {inferDatabaseRow, inferTable, RowBaseType, Row, TableType} from './table';
+import {inferTableRow, inferTable, RowBaseType, Row, TableType} from './table';
 
 function testStringNarrowing(input: string) {
     return input;
@@ -10,7 +10,7 @@ const notJustStrings: RowBaseType = {
     maybeString: 'derp',
 };
 
-function testTableTypeAcceptance<RowGeneric extends RowBaseType>(input: TableType<RowGeneric>) {
+function testTableTypeAcceptance(input: TableType) {
     return input;
 }
 
@@ -31,17 +31,18 @@ const inputObject = {
     },
 };
 
-const emptyConnectionInfo: ConnectionInfo = {} as ConnectionInfo;
+const emptyConnectionInfo: DatabaseConnectionInfo = {
+    user: '',
+    password: '',
+    databaseName: '',
+    host: '',
+};
 
-const testTable = inferTable(
-    {databaseConnection: emptyConnectionInfo, tableName: 'test_table'},
-    inputObject,
-);
+const connection = {databaseConnection: emptyConnectionInfo, tableName: 'test_table'};
+
+const testTable = inferTable({...connection, ...inputObject});
 // it is unfortunate but sampleRow may be an empty object
-const emptyTable = inferTable(
-    {databaseConnection: emptyConnectionInfo, tableName: 'test_table'},
-    {sampleRow: {}},
-);
+const emptyTable = inferTable({sampleRow: {}, ...connection});
 
 // this should know that its type is narrowed to just string
 testStringNarrowing(testTable.sampleRow.lastName);
@@ -49,7 +50,7 @@ testStringNarrowing(testTable.sampleRow.lastName);
 // this should accept the test table without the test table being assigned specifically to that type
 testTableTypeAcceptance(testTable);
 
-const newRow = inferDatabaseRow(testTable, {
+const newRow = inferTableRow(testTable, {
     lastName: 'Grievous',
     age: NaN,
     color: 'green',
@@ -61,9 +62,9 @@ const newRow2: Row<typeof testTable> = {
     color: 'blue',
     thingie: 'orange',
 };
-const shouldBeEmptyRow = inferDatabaseRow(emptyTable, {});
+const shouldBeEmptyRow = inferTableRow(emptyTable, {});
 // if the table is defined with an empty  sampleRow then any row is accepted unfortunately
-const shouldBeEmptyRow2 = inferDatabaseRow(emptyTable, {stuff: 'whatever'});
+const shouldBeEmptyRow2 = inferTableRow(emptyTable, {stuff: 'whatever'});
 
 insertRow(testTable, {lastName: 'old value', thingie: 'what', color: 'blue', age: 44});
 
@@ -84,24 +85,24 @@ updateRows(testTable, [{lastName: 'old value'}], [{lastName: 'new value'}]);
 //
 
 // this should be NOT valid
-const invalidTable = inferTable(
-    {databaseConnection: emptyConnectionInfo, tableName: 'test_table'},
-    {
-        sampleRow: {
-            thingie: new RegExp(),
-        },
+const invalidTable = inferTable({
+    sampleRow: {
+        thingie: new RegExp(),
     },
-);
+    databaseConnection: emptyConnectionInfo,
+    tableName: 'test_table',
+});
 // this should be NOT valid
-const invalidTable2 = inferTable(
-    {databaseConnection: emptyConnectionInfo, tableName: 'test_table'},
-    {},
-);
+const invalidTable2 = inferTable({
+    databaseConnection: emptyConnectionInfo,
+    tableName: 'test_table',
+});
 // this should be NOT valid
-const invalidTable3 = inferTable(
-    {databaseConnection: emptyConnectionInfo, tableName: 'test_table'},
-    {},
-);
+const invalidTable3 = inferTable({
+    databaseConnection: emptyConnectionInfo,
+    tableName: 'test_table',
+    sampleRow: 'derp',
+});
 
 insertRow(testTable, {lastName: 'hello there'});
 insertRows(testTable, [{lastName: 'we done here'}]);
@@ -120,6 +121,6 @@ testTableTypeAcceptance(inputObject);
 testStringNarrowing(notJustStrings.maybeString);
 // new row without any properties
 
-const shouldNotBeEmptyRow = inferDatabaseRow(testTable, {});
+const shouldNotBeEmptyRow = inferTableRow(testTable, {});
 const newRowFail2: Row<typeof testTable> = {lastName: 'cushion'};
-const newRowFail3 = inferDatabaseRow(testTable, {lastName: 'hoopla'});
+const newRowFail3 = inferTableRow(testTable, {lastName: 'hoopla'});
