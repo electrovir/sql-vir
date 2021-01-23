@@ -1,6 +1,6 @@
-import {DeepReadonly} from './augments';
-import {DatabaseConnectionInfo} from './database-connection';
-import {formatJson, VirSqlError} from './virsql-error';
+import {DeepReadonly, formatJson} from './augments';
+import {DatabaseConnectionConfig} from './database-connection';
+import {VirSqlError} from './virsql-error';
 
 /**
  * All accepted data types for row cells.
@@ -30,7 +30,7 @@ export type TableInputType = Readonly<{
 /**
  * Data needed for performing database queries with the table.
  */
-export type TableConnectionType = {databaseConnection: DatabaseConnectionInfo; tableName: string};
+export type TableConnectionType = {databaseConnection: DatabaseConnectionConfig; tableName: string};
 
 /**
  * Full Table type including sample row for type checking and connection info required for

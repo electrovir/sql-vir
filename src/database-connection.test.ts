@@ -1,48 +1,36 @@
-import {DatabaseConnectionInfo, DatabaseConnectionOptions} from './database-connection';
+import {connectToDatabase, DatabaseConnectionConfig} from './database-connection';
+import {MySqlError} from './mysql-error';
 
-//
-// =================================================================================
-//
-//                                    SUCCESSES
-//
-// =================================================================================
-//
+// npm run compile && node dist/database-connection.test.js
 
-const connectionThingie: DatabaseConnectionInfo = {
+const nonExistentDatabaseConfig: DatabaseConnectionConfig = {
+    databaseName: 'Qrrbrbirlbel',
     host: 'localhost',
     user: {
-        username: 'test user',
+        username: 'not a real user',
         password: 'not a real password',
     },
-    databaseName: 'testDatabase',
 };
 
-const connectionWithOptions: DatabaseConnectionInfo = {
-    ...connectionThingie,
-    options: {
-        port: 404,
-    },
-};
+async function main() {
+    try {
+        await connectToDatabase(nonExistentDatabaseConfig);
+    } catch (error) {
+        if (
+            error instanceof MySqlError &&
+            error.message.includes(
+                `Error: Access denied for user '${nonExistentDatabaseConfig.user.username}'@` +
+                    `'${nonExistentDatabaseConfig.host}' (using password: YES)`,
+            )
+        ) {
+            console.log('success!');
+        } else {
+            console.log('failure!');
+        }
+        throw error;
+    }
+}
 
-//
-// =================================================================================
-//
-//                                    FAILURES
-//
-// =================================================================================
-//
-//                       everything below here SHOULD fail
-//
-
-const options: DatabaseConnectionOptions = {
-    user: 'should not allow user property',
-};
-const options1: DatabaseConnectionOptions = {
-    password: 'should not allow password property',
-};
-const options2: DatabaseConnectionOptions = {
-    database: 'should not allow database property',
-};
-const options3: DatabaseConnectionOptions = {
-    host: 'should not allow host property',
-};
+main().catch((error) => {
+    console.error(error);
+});

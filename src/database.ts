@@ -1,4 +1,4 @@
-import {DatabaseConnectionInfo} from './database-connection';
+import {DatabaseConnectionConfig} from './database-connection';
 import {DeepReadonly, getObjectTypedKeys} from './augments';
 import {TableConnectionType, inferTable, TableInputType, TableType} from './table';
 
@@ -14,7 +14,7 @@ export type DatabaseTables<
  * the information required in both input and output Database types
  */
 export type CommonDatabaseInfoType = {
-    connection: DatabaseConnectionInfo;
+    connection: DatabaseConnectionConfig;
     version?: number;
 };
 
