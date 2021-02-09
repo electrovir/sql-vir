@@ -1,4 +1,4 @@
-# VirSQL
+# SQL Vir
 
 The heroic high-level TypeScript MySQL interface.
 
