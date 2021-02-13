@@ -1,5 +1,5 @@
 import {DeepReadonly, formatJson} from './augments';
-import {DatabaseConnectionConfig} from './database-connection';
+import {DatabaseConfigWithDatabaseName} from './database-config';
 import {VirSqlError} from './virsql-error';
 
 /**
@@ -30,7 +30,10 @@ export type TableInputType = Readonly<{
 /**
  * Data needed for performing database queries with the table.
  */
-export type TableConnectionType = {databaseConnection: DatabaseConnectionConfig; tableName: string};
+export type TableConnectionType = {
+    databaseConnection: DatabaseConfigWithDatabaseName;
+    tableName: string;
+};
 
 /**
  * Full Table type including sample row for type checking and connection info required for

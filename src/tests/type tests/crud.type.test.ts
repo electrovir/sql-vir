@@ -1,6 +1,9 @@
-import {inferTable} from './table';
-import {deleteRow, insertRow, updateRow} from './crud';
-import {DatabaseConnectionInfo} from './database-connection';
+import {deleteRow, insertRow, updateRow} from '../../crud';
+import {
+    DatabaseConfigWithDatabaseName,
+    defaultDatabaseConnectionConfig,
+} from '../../database-config';
+import {inferTable} from '../../table';
 
 const inputObject = {
     sampleRow: {
@@ -11,8 +14,7 @@ const inputObject = {
     },
 };
 
-// bad empty object so we just don't have to worry about this here
-const dummyConnection: DatabaseConnectionInfo = {} as DatabaseConnectionInfo;
+const dummyConnection: DatabaseConfigWithDatabaseName = defaultDatabaseConnectionConfig;
 
 const testTable = inferTable({
     databaseConnection: dummyConnection,
@@ -61,8 +63,13 @@ insertRow(
 //                       everything below here SHOULD fail
 //
 
+// @ts-expect-error
 insertRow(testTable, {lastName: 4});
+// @ts-expect-error
 updateRow(testTable, {hoopla: 'kenobi'}, {derp: 56});
+// @ts-expect-error
 updateRow(testTable, {lastName: 'kenobi'}, {derp: 56});
+// @ts-expect-error
 deleteRow(testTable, {derp: 'fjkdlsjfd'});
+// @ts-expect-error
 deleteRow(testTable2, {who: 'old value'});

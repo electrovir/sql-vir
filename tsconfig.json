@@ -1,16 +1,16 @@
 {
     "compilerOptions": {
         "alwaysStrict": true,
+        "declaration": true,
         "forceConsistentCasingInFileNames": true,
         "module": "commonjs",
-        "declaration": true,
-        "target": "ES2018",
         "noImplicitAny": true,
         "noImplicitReturns": true,
         "noImplicitThis": true,
+        "noUncheckedIndexedAccess": true,
         "outDir": "dist",
         "rootDir": "src",
-        "strict": true
-    },
-    "exclude": ["src/**/*.type.test.ts", "dist"]
+        "strict": true,
+        "target": "ES2018"
+    }
 }

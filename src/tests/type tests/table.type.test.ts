@@ -1,6 +1,6 @@
-import {DatabaseConnectionInfo} from './database-connection';
-import {insertRow, insertRows, deleteRow, deleteRows, updateRow, updateRows} from './crud';
-import {inferTableRow, inferTable, RowBaseType, Row, TableType} from './table';
+import {deleteRow, deleteRows, insertRow, insertRows, updateRow, updateRows} from '../../crud';
+import {DatabaseConfigWithDatabaseName} from '../../database-config';
+import {inferTable, inferTableRow, Row, RowBaseType, TableType} from '../../table';
 
 function testStringNarrowing(input: string) {
     return input;
@@ -31,8 +31,8 @@ const inputObject = {
     },
 };
 
-const emptyConnectionInfo: DatabaseConnectionInfo = {
-    user: {username: '', password: ''},
+const emptyConnectionInfo: DatabaseConfigWithDatabaseName = {
+    user: {username: '', password: '', domain: ''},
     databaseName: '',
     host: '',
 };
@@ -86,12 +86,14 @@ updateRows(testTable, [{lastName: 'old value'}], [{lastName: 'new value'}]);
 // this should be NOT valid
 const invalidTable = inferTable({
     sampleRow: {
+        // @ts-expect-error
         thingie: new RegExp(),
     },
     databaseConnection: emptyConnectionInfo,
     tableName: 'test_table',
 });
 // this should be NOT valid
+// @ts-expect-error
 const invalidTable2 = inferTable({
     databaseConnection: emptyConnectionInfo,
     tableName: 'test_table',
@@ -100,26 +102,40 @@ const invalidTable2 = inferTable({
 const invalidTable3 = inferTable({
     databaseConnection: emptyConnectionInfo,
     tableName: 'test_table',
+    // @ts-expect-error
     sampleRow: 'derp',
 });
 
+// @ts-expect-error
 insertRow(testTable, {lastName: 'hello there'});
+// @ts-expect-error
 insertRows(testTable, [{lastName: 'we done here'}]);
+// @ts-expect-error
 insertRow(testTable, {lastName: 'old value'});
 
 // should not be able to modify table data
+// @ts-expect-error
 testTable.sampleRow.age = 4;
+// @ts-expect-error
 testTable.sampleRow = inputObject.sampleRow;
+// @ts-expect-error
 testTable.database = 'failure';
 
 // these should all fail
+// @ts-expect-error
 testTableTypeAcceptance({sampleRow: {}});
+// @ts-expect-error
 testTableTypeAcceptance({database: 'fail databsae', tableName: 'fail table'});
+// @ts-expect-error
 testTableTypeAcceptance(inputObject);
 // this should fail because RowBaseType allows more than just strings
+// @ts-expect-error
 testStringNarrowing(notJustStrings.maybeString);
 
 // new row without any properties
+// @ts-expect-error
 const shouldNotBeEmptyRow = inferTableRow(testTable, {});
+// @ts-expect-error
 const newRowFail2: Row<typeof testTable> = {lastName: 'cushion'};
+// @ts-expect-error
 const newRowFail3 = inferTableRow(testTable, {lastName: 'hoopla'});

@@ -1,6 +1,6 @@
-import {DatabaseConnectionConfig} from './database-connection';
 import {DeepReadonly, getObjectTypedKeys} from './augments';
-import {TableConnectionType, inferTable, TableInputType, TableType} from './table';
+import {DatabaseConnectionConfig, DatabaseConnectionInputConfig} from './database-config';
+import {inferTable, TableConnectionType, TableInputType, TableType} from './table';
 
 /**
  * used for table definitions in a database object
@@ -14,7 +14,6 @@ export type DatabaseTables<
  * the information required in both input and output Database types
  */
 export type CommonDatabaseInfoType = {
-    connection: DatabaseConnectionConfig;
     version?: number;
 };
 
@@ -24,6 +23,7 @@ export type CommonDatabaseInfoType = {
  */
 export type DatabaseType = {
     tables: DatabaseTables<TableType>;
+    connection: DatabaseConnectionConfig;
 } & CommonDatabaseInfoType;
 
 /**
@@ -31,6 +31,7 @@ export type DatabaseType = {
  */
 export type DatabaseInputType = {
     tables: DatabaseTables<TableInputType>;
+    connection: DatabaseConnectionInputConfig;
 } & CommonDatabaseInfoType;
 
 /**
@@ -65,11 +66,20 @@ export function inferDatabase<DatabaseGeneric extends DatabaseInputType>(
     // insert the database connection information into each table while maintaining the type info
     const finalizedTables: Readonly<TablesOutput> = getObjectTypedKeys(databaseInput.tables).reduce(
         (tableJoining, tableName) => {
-            const table = databaseInput.tables[tableName];
+            // not null asserted because the key is taken from the object itself
+            const table = databaseInput.tables[tableName]!;
 
             tableJoining[tableName] = inferTable({
                 ...table,
-                databaseConnection: databaseInput.connection,
+                databaseConnection: {
+                    host: '',
+                    databaseName: '',
+                    user: {
+                        username: '',
+                        password: '',
+                        domain: '',
+                    },
+                },
                 /*
                     typescript thinks that `tableName` can be a number even though the generic
                     defines it as only a string ¯\_(ツ)_/¯ 

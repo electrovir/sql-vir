@@ -1,5 +1,5 @@
-import {deleteRow, insertRow, updateRow, deleteRows, insertRows, updateRows} from './crud';
-import {inferDatabase} from './database';
+import {deleteRow, deleteRows, insertRow, insertRows, updateRow, updateRows} from '../../crud';
+import {inferDatabase} from '../../database';
 
 // for testing types later in the file
 function acceptNumber(input: number) {}
@@ -16,10 +16,7 @@ function acceptString(input: string) {}
 const database1 = inferDatabase({
     connection: {
         host: 'localhost',
-        user: {
-            username: 'not-a-real-user',
-            password: 'do not store a password in your repo like this',
-        },
+        userConfigFile: 'fake path to config file',
         databaseName: 'not a real database',
     },
     tables: {
@@ -41,10 +38,7 @@ const database1 = inferDatabase({
 inferDatabase({
     connection: {
         host: 'localhost',
-        user: {
-            username: 'not-a-real-user',
-            password: 'do not store a password in your repo like this',
-        },
+        userConfigFile: 'fake path to config file',
         databaseName: 'not a real database',
     },
     tables: {},
@@ -76,21 +70,38 @@ updateRows(database1.tables.tableA, [{columnA1: 'old value'}], [{columnA1: 'new 
 //
 
 // should be readonly
+// @ts-expect-error
 database1.connection = database1.connection;
+// @ts-expect-error
 database1.tables = database1.tables;
+// @ts-expect-error
 database1.version = 5;
+// @ts-expect-error
 database1.tables.tableA = database1.tables.tableA;
+// @ts-expect-error
 database1.tables.tableA.sampleRow = database1.tables.tableA.sampleRow;
+// @ts-expect-error
 database1.tables.tableA.databaseConnection = database1.tables.tableA.databaseConnection;
 
+// @ts-expect-error
 acceptString(database1.tables.tableA.sampleRow.columnA0);
+// @ts-expect-error
 acceptString(database1.tables.tableB.sampleRow.columnB1);
+// @ts-expect-error
 acceptNumber(database1.tables.tableA.sampleRow.columnA1);
+// @ts-expect-error
 insertRow(database1.tables.tableA, {who: 'we done here'});
+// @ts-expect-error
 insertRows(database1.tables.tableA, [{who: 'we done here'}]);
+// @ts-expect-error
 insertRow(database1.tables.tableA, {who: 'old value'});
+// @ts-expect-error
 insertRow(database1.tables.tableA, {columnA1: 'hello there'});
+// @ts-expect-error
 deleteRow(database1.tables.tableA, {who: 'old value'});
+// @ts-expect-error
 updateRow(database1.tables.tableA, {who: 'old value'}, {who: 'new value'});
+// @ts-expect-error
 inferDatabase({});
+// @ts-expect-error
 inferDatabase({connection: {}, tables: {}});
